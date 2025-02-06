@@ -1,0 +1,18 @@
+name: fedifetcher
+services:
+  fedifetcher:
+    stdin_open: true
+    tty: true
+    image: ghcr.io/nanos/fedifetcher:latest
+    # We override the Dockerfile entrypoint, run the python code with our commands, then append our sleep command.
+    entrypoint: ["sh", "-c", "python /app/find_posts.py --access-token=<TOKEN> --server=<SERVER>; sleep 3600; "]
+    # Persist our data
+    volumes:
+      - ./data:/app/artifacts
+    # Use the `deploy` option to enable `restart_policy`
+    deploy:
+      # Don't go above 1 replica to avoid multiple overlapping executions of the script
+      replicas: 1
+      restart_policy:
+        # The `any` condition means even after successful runs, we'll restart the script
+        condition: any
